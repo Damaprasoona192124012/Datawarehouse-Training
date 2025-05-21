@@ -1,9 +1,3 @@
-Database: campusdb
-use campusdb
- 
-Collection: enrollments
-db.createCollection(“enrollments”)
- 
 Tasks:-
 1. Use a new database called campusdb
 use campusdb
