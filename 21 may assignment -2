@@ -1,0 +1,17 @@
+1. create a new database called bugtracker
+use bugtracker
+2. Insert 3 bugs reporting into bug collection
+db.bugs.insertMany(
+[
+{title: "Bleach", reportedBy: "Tite Kubo", status: "in progress", priority: "high", createdAt: Date("2000-
+01-01")},
+{title: "One Piece", reportedBy: "Oda", status: "open", priority: "low", createdAt: Date("2025-03-02")},
+{title: "Attack on bugs", reportedBy: "Tharun", status:"closed", createdAt: Date("2024-04-09")}
+]
+)
+3. Query all bugs with status – open and priority – high.
+db.bugs.find({status: "open", priority: "high"})
+4. Update the status of specific bug to closed.
+db.bugs.updateOne({title: "Bleach"}, {$set: {status: "closed"}})
+5. Delete the bug reported by – Test user.
+db.bugs.deleteOne({reportedBy: "Test User"})
