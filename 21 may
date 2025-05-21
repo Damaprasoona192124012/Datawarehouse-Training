@@ -1,0 +1,195 @@
+Exercise: Student Enrollments System
+Database: campusdb
+Collection: enrollments
+
+1) Use a new database called campusdb
+test> use campusdb
+switched to db campusdb
+
+2) Create a collection enrollments and insert 4 student documents.
+campusdb> db.enrollments.insertMany([
+...   {
+...     name: "Ananya Verma",
+...     studentId: 101,
+...     courses: ["Python", "Java"],
+...     address: { city: "Delhi", state: "Delhi" },
+...     feesPaid: true
+...   },
+...   {
+...     name: "Rohan Mehta",
+...     studentId: 102,
+...     courses: ["Python", "AI"],
+...     address: { city: "Bangalore", state: "Karnataka" },
+...     feesPaid: false
+...   },
+...   {
+...     name: "Sneha Kapoor",
+...     studentId: 103,
+...     courses: [],
+...     address: { city: "Hyderabad", state: "Telangana" },
+...     feesPaid: true
+...   },
+...   {
+...     name: "Imran Shaikh",
+...     studentId: 104,
+...     courses: ["Data Science", "Java"],
+...     address: { city: "Delhi", state: "Delhi" },
+...     feesPaid: false
+...   }
+... ])
+...
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('682d5027da97429c936c4bd0'),
+    '1': ObjectId('682d5027da97429c936c4bd1'),
+    '2': ObjectId('682d5027da97429c936c4bd2'),
+    '3': ObjectId('682d5027da97429c936c4bd3')
+  }
+}
+
+3) Display all student records
+campusdb> db.enrollments.find()
+[
+  {
+    _id: ObjectId('682d5027da97429c936c4bd0'),
+    name: 'Ananya Verma',
+    studentId: 101,
+    courses: [ 'Python', 'Java' ],
+    address: { city: 'Delhi', state: 'Delhi' },
+    feesPaid: true
+  },
+  {
+    _id: ObjectId('682d5027da97429c936c4bd1'),
+    name: 'Rohan Mehta',
+    studentId: 102,
+    courses: [ 'Python', 'AI' ],
+    address: { city: 'Bangalore', state: 'Karnataka' },
+    feesPaid: false
+  },
+  {
+    _id: ObjectId('682d5027da97429c936c4bd2'),
+    name: 'Sneha Kapoor',
+    studentId: 103,
+    courses: [],
+    address: { city: 'Hyderabad', state: 'Telangana' },
+    feesPaid: true
+  },
+  {
+    _id: ObjectId('682d5027da97429c936c4bd3'),
+    name: 'Imran Shaikh',
+    studentId: 104,
+    courses: [ 'Data Science', 'Java' ],
+    address: { city: 'Delhi', state: 'Delhi' },
+    feesPaid: false
+  }
+]
+
+4) Find all students enrolled in "Python"
+campusdb> db.enrollments.find({ courses: "Python" })
+[
+  {
+    _id: ObjectId('682d5027da97429c936c4bd0'),
+    name: 'Ananya Verma',
+    studentId: 101,
+    courses: [ 'Python', 'Java' ],
+    address: { city: 'Delhi', state: 'Delhi' },
+    feesPaid: true
+  },
+  {
+    _id: ObjectId('682d5027da97429c936c4bd1'),
+    name: 'Rohan Mehta',
+    studentId: 102,
+    courses: [ 'Python', 'AI' ],
+    address: { city: 'Bangalore', state: 'Karnataka' },
+    feesPaid: false
+  }
+]
+
+5) Find students from Delhi who have not paid fees
+campusdb> db.enrollments.find({
+...   "address.city": "Delhi",
+...   feesPaid: false
+... })
+...
+[
+  {
+    _id: ObjectId('682d5027da97429c936c4bd3'),
+    name: 'Imran Shaikh',
+    studentId: 104,
+    courses: [ 'Data Science', 'Java' ],
+    address: { city: 'Delhi', state: 'Delhi' },
+    feesPaid: false
+  }
+]
+
+6) Add a new course "AI Fundamentals" to a specific student's courses array
+
+campusdb> db.enrollments.updateOne(                             //added to 103, which was left blank
+...   { studentId: 103 },
+...   { $push: { courses: "AI Fundamentals" } }
+... )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+7) Update the city of a specific student to "Mumbai"
+campusdb> db.enrollments.updateOne(
+...   { studentId: 103 },
+...   { $set: { "address.city": "Mumbai" } }
+... )
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+campusdb> db.enrollments.updateOne(		//updating the state, just in case
+...   { studentId: 103 },
+...   { $set: { "address.state": "Maharashtra" } }
+... )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+8) Set feesPaid to true for all students from "Delhi"
+campusdb> db.enrollments.updateMany(
+...   { "address.city": "Delhi" },
+...   { $set: { feesPaid: true } }
+... )
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 2,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+9) Remove "Java" course from any student who has it
+campusdb> db.enrollments.updateMany(
+...   { courses: "Java" },
+...   { $pull: { courses: "Java" } }
+... )
+...
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 2,
+  modifiedCount: 2,
+  upsertedCount: 0
+}
+
+10) Delete all students who have no courses enrolled (i.e., courses: [] )
+campusdb> db.enrollments.deleteMany({ courses: { $size: 0 } })			//none because, earlier courses were added to student 103
+{ acknowledged: true, deletedCount: 0 }
