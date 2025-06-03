@@ -1,0 +1,27 @@
+from pydantic import BaseModel, Field, validator
+from typing import Optional
+
+class ProductBase(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    description: Optional[str] = Field(None, max_length=500)
+    price: float = Field(..., gt=0)
+    category: str = Field(..., min_length=1, max_length=50)
+    in_stock: int = Field(..., ge=0)
+    available: Optional[bool] = True
+    image_url: Optional[str] = None
+    discount: Optional[float] = Field(0.0, ge=0, le=100)
+
+    @validator('price')
+    def price_must_be_positive(cls, v):
+        if v <= 0:
+            raise ValueError('Price must be positive')
+        return v
+
+class ProductCreate(ProductBase):
+    pass
+
+class Product(ProductBase):
+    id: int
+    
+    class Config:
+        orm_mode = True
