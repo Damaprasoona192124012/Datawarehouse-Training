@@ -1,0 +1,79 @@
+from fastapi import FastAPI, Depends, Query, Path, status
+from sqlalchemy.orm import Session
+import typing  # ✅ use explicit import to avoid List override issues
+
+from . import models, schemas, crud
+from .database import Base, engine, SessionLocal
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="E-Commerce Product Management System")
+
+# ---------- Dependency ----------
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# ---------- Routes ----------
+@app.post(
+    "/products",
+    response_model=schemas.ProductRead,
+    status_code=status.HTTP_201_CREATED
+)
+def add_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
+    return crud.create_product(db, product)
+
+
+@app.get(
+    "/products",
+    response_model=typing.List[schemas.ProductRead]  # ✅ FIXED
+)
+def list_products(
+    category: typing.Optional[str] = Query(None, description="Filter by category"),
+    available: typing.Optional[bool] = Query(None, description="available=true/false"),
+    db: Session = Depends(get_db)
+):
+    return crud.list_products(db, category, available)
+
+
+@app.get(
+    "/products/{product_id}",
+    response_model=schemas.ProductRead
+)
+def fetch_product(
+    product_id: int = Path(..., ge=1),
+    db: Session = Depends(get_db)
+):
+    return crud.get_product(db, product_id)
+
+
+@app.put(
+    "/products/{product_id}",
+    response_model=schemas.ProductRead
+)
+def update_product(
+    product_id: int = Path(..., ge=1),
+    data: schemas.ProductUpdate = ...,
+    db: Session = Depends(get_db)
+):
+    return crud.update_product(db, product_id, data)
+
+
+@app.delete(
+    "/products/{product_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def delete_product(
+    product_id: int = Path(..., ge=1),
+    db: Session = Depends(get_db)
+):
+    crud.delete_product(db, product_id)
+
+
+# ✅ Optional root route to test basic server start
+@app.get("/")
+def root():
+    return {"status": "OK"}
