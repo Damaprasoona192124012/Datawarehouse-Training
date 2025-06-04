@@ -1,0 +1,3 @@
+{
+  "detail": "(sqlite3.ProgrammingError) Error binding parameter 7: type 'HttpUrl' is not supported\n[SQL: INSERT INTO products (name, description, price, in_stock, category, available, image_url, discount) VALUES (?, ?, ?, ?, ?, ?, ?, ?)]\n[parameters: ('mouse', 'wireless mouse', 29.99, 10, 'electronic', 1, HttpUrl('https://example.com/image.png'), 0.05)]\n(Background on this error at: https://sqlalche.me/e/20/f405)"
+}
