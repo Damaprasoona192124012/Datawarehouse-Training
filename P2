@@ -1,0 +1,46 @@
+# client.py
+import requests
+
+BASE = "http://127.0.0.1:8000"
+
+def add_product():
+    product = {
+        "name": "Mouse",
+        "description": "Wireless mouse",
+        "price": 29.99,
+        "in_stock": 10,
+        "category": "electronics",
+        "available": True,
+        "discount": 0.1
+    }
+    response = requests.post(f"{BASE}/products", json=product)
+    print("POST ➕", response.status_code, response.json())
+
+def list_products():
+    response = requests.get(f"{BASE}/products")
+    print("GET 📋", response.status_code)
+    for p in response.json():
+        print(p)
+
+def get_product(product_id):
+    response = requests.get(f"{BASE}/products/{product_id}")
+    print("GET 🔍", response.status_code, response.json())
+
+def update_product(product_id):
+    updates = {
+        "price": 24.99,
+        "in_stock": 15
+    }
+    response = requests.put(f"{BASE}/products/{product_id}", json=updates)
+    print("PUT ✏️", response.status_code, response.json())
+
+def delete_product(product_id):
+    response = requests.delete(f"{BASE}/products/{product_id}")
+    print("DELETE 🗑️", response.status_code)
+
+# 🧪 Example Calls
+add_product()
+list_products()
+get_product(1)
+update_product(1)
+delete_product(1)
