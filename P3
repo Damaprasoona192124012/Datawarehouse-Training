@@ -1,0 +1,96 @@
+import requests
+
+BASE = "http://127.0.0.1:8010"  # make sure FastAPI runs on this port
+
+
+def add_product():
+    name = input("Enter product name: ")
+    description = input("Enter description: ")
+    price = float(input("Enter price: "))
+    in_stock = int(input("Enter stock quantity: "))
+    category = input("Enter category: ")
+    available = input("Available (yes/no): ").lower() == "yes"
+    discount = float(input("Enter discount (0 to 1, press enter to skip): ") or 0)
+
+    product = {
+        "name": name,
+        "description": description,
+        "price": price,
+        "in_stock": in_stock,
+        "category": category,
+        "available": available,
+        "discount": discount
+    }
+
+    response = requests.post(f"{BASE}/products", json=product)
+    print("➕ Product added:", response.status_code)
+    print(response.json())
+
+
+def list_products():
+    response = requests.get(f"{BASE}/products")
+    print("📋 Product List:")
+    for p in response.json():
+        print(p)
+
+
+def get_product():
+    product_id = int(input("Enter product ID: "))
+    response = requests.get(f"{BASE}/products/{product_id}")
+    print("🔍 Product Details:")
+    print(response.json())
+
+
+def update_product():
+    product_id = int(input("Enter product ID to update: "))
+    price = input("Enter new price (or leave blank): ")
+    in_stock = input("Enter new stock (or leave blank): ")
+
+    updates = {}
+    if price:
+        updates["price"] = float(price)
+    if in_stock:
+        updates["in_stock"] = int(in_stock)
+
+    response = requests.put(f"{BASE}/products/{product_id}", json=updates)
+    print("✏️ Product updated:", response.status_code)
+    print(response.json())
+
+
+def delete_product():
+    product_id = int(input("Enter product ID to delete: "))
+    response = requests.delete(f"{BASE}/products/{product_id}")
+    print("🗑️ Product deleted:", response.status_code)
+
+
+def menu():
+    while True:
+        print("\n📦 E-Commerce Product Management")
+        print("1. Add Product")
+        print("2. List Products")
+        print("3. Get Product by ID")
+        print("4. Update Product")
+        print("5. Delete Product")
+        print("6. Exit")
+
+        choice = input("Enter your choice (1-6): ")
+
+        if choice == "1":
+            add_product()
+        elif choice == "2":
+            list_products()
+        elif choice == "3":
+            get_product()
+        elif choice == "4":
+            update_product()
+        elif choice == "5":
+            delete_product()
+        elif choice == "6":
+            print("👋 Exiting...")
+            break
+        else:
+            print("❌ Invalid choice. Try again.")
+
+
+if __name__ == "__main__":
+    menu()
