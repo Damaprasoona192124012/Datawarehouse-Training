@@ -1,0 +1,40 @@
+ error: subprocess-exited-with-error
+
+  × Preparing metadata (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [22 lines of output]
+      Python reports SOABI: cp313t-win_amd64
+      Computed rustc target triple: x86_64-pc-windows-msvc
+      Installation directory: C:\Users\2000153449\AppData\Local\puccinialin\puccinialin\Cache
+      Rustup already downloaded
+      Installing rust to C:\Users\2000153449\AppData\Local\puccinialin\puccinialin\Cache\rustup
+      warn: It looks like you have an existing rustup settings file at:
+      warn: C:\Users\2000153449\.rustup\settings.toml
+      warn: Rustup will install the default toolchain as specified in the settings file,
+      warn: instead of the one inferred from the default host triple.
+      info: profile set to 'minimal'
+      info: default host triple is x86_64-pc-windows-msvc
+      warn: Updating existing toolchain, profile choice will be ignored
+      info: syncing channel updates for 'stable-x86_64-pc-windows-msvc'
+      info: default toolchain set to 'stable-x86_64-pc-windows-msvc'
+      Checking if cargo is installed
+
+      Cargo, the Rust package manager, is not installed or is not on PATH.
+      This package requires Rust and Cargo to compile extensions. Install it through
+      the system's package manager or via https://rustup.rs/
+
+      Checking for Rust toolchain....
+      Rust not found, installing into a temporary directory
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+
+[notice] A new release of pip is available: 24.2 -> 25.1.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+error: metadata-generation-failed
+
+× Encountered error while generating package metadata.
+╰─> See above for output.
+
+note: This is an issue with the package mentioned above, not pip.
+hint: See above for detail
