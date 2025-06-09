@@ -1,0 +1,97 @@
+import os
+import re
+import pandas as pd
+import ahocorasick
+from nltk.corpus import stopwords
+import nltk
+
+nltk.download('stopwords')
+english_stopwords = set(stopwords.words('english'))
+
+# === Extract keywords from all 'description' columns ===
+def extract_keywords_from_folder(folder_path):
+    keywords = set()
+
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            if file.endswith('.csv'):
+                file_path = os.path.join(root, file)
+                try:
+                    df = pd.read_csv(file_path)
+                    if 'description' in df.columns:
+                        for desc in df['description'].dropna():
+                            words = re.findall(r'\b\w+\b', str(desc).lower())
+                            for word in words:
+                                if word not in english_stopwords and len(word) > 2:
+                                    keywords.add(word)
+                except Exception as e:
+                    print(f"❌ Error reading {file_path}: {e}")
+    return list(keywords)
+
+# === Build regex and Aho-Corasick ===
+def build_matchers(keywords):
+    regex_pattern = re.compile(r'\b(?:' + '|'.join(map(re.escape, keywords)) + r')\b', re.IGNORECASE)
+
+    A = ahocorasick.Automaton()
+    for idx, keyword in enumerate(keywords):
+        A.add_word(keyword.lower(), (idx, keyword))
+    A.make_automaton()
+
+    return regex_pattern, A
+
+# === Classification function ===
+def classify_text(text, regex_pattern, automaton):
+    text_lower = text.lower()
+    for _, (_, _) in automaton.iter(text_lower):
+        return "ITO"
+    if regex_pattern.search(text_lower):
+        return "ITO"
+    return "Non-ITO"
+
+# === Classify all descriptions from all files ===
+def classify_descriptions(folder_path, regex_pattern, automaton):
+    ito_data = []
+    non_ito_data = []
+
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            if file.endswith('.csv'):
+                file_path = os.path.join(root, file)
+                try:
+                    df = pd.read_csv(file_path)
+                    if 'description' in df.columns:
+                        for desc in df['description'].dropna():
+                            line = str(desc).strip()
+                            if line:
+                                label = classify_text(line, regex_pattern, automaton)
+                                record = {
+                                    'file': file_path,
+                                    'description': line,
+                                    'label': label
+                                }
+                                if label == "ITO":
+                                    ito_data.append(record)
+                                else:
+                                    non_ito_data.append(record)
+                except Exception as e:
+                    print(f"❌ Failed to process {file_path}: {e}")
+
+    pd.DataFrame(ito_data).to_csv("ito_classified.csv", index=False)
+    pd.DataFrame(non_ito_data).to_csv("non_ito_classified.csv", index=False)
+    print("✅ Saved 'ito_classified.csv' and 'non_ito_classified.csv'.")
+
+# === Full pipeline ===
+def run_pipeline(main_folder_path):
+    print("📥 Extracting keywords from 'description' column...")
+    keywords = extract_keywords_from_folder(main_folder_path)
+    print(f"🧠 Total keywords used for matching: {len(keywords)}")
+
+    print("⚙️ Building regex and Aho-Corasick matchers...")
+    regex_pattern, automaton = build_matchers(keywords)
+
+    print("🚀 Starting classification of all descriptions...")
+    classify_descriptions(main_folder_path, regex_pattern, automaton)
+
+# === USAGE ===
+main_folder = "/path/to/your/folder"  # 🔁 Replace with your actual folder path
+run_pipeline(main_folder)
