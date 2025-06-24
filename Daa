@@ -6,14 +6,7 @@ def fetch_onsite_grade_distribution_from_fabric(project_id: str):
     Query Fabric to fetch onsite consultant grade distribution for a given project.
     Returns (labels, data) tuple.
     """
-    grade_query = """
-        SELECT GRADE, COUNT(*) AS RecordCount
-        FROM [OCC_LAKEHOUSE].[dbo].[ext_rpt_connectreport]
-        WHERE [BILLING_TYPE] = 'FPP'
-          AND [PROJECT_TYPE] = 'CLIENT'
-          AND [PROJ_ID] = ?
-          AND [DEPUTATION] = 'onsite'
-        GROUP BY GRADE;
+    
     """
 
     rows = execute_query(grade_query, (project_id,))
