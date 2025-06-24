@@ -1,0 +1,34 @@
+from collections import defaultdict
+from utils.db import execute_query  # Adjust path to your execute_query method
+
+def fetch_onsite_grade_distribution_from_fabric(project_id: str):
+    """
+    Query Fabric to fetch onsite consultant grade distribution for a given project.
+    Returns (labels, data) tuple.
+    """
+    grade_query = """
+        SELECT GRADE, COUNT(*) AS RecordCount
+        FROM [OCC_LAKEHOUSE].[dbo].[ext_rpt_connectreport]
+        WHERE [BILLING_TYPE] = 'FPP'
+          AND [PROJECT_TYPE] = 'CLIENT'
+          AND [PROJ_ID] = ?
+          AND [DEPUTATION] = 'onsite'
+        GROUP BY GRADE;
+    """
+
+    rows = execute_query(grade_query, (project_id,))
+
+    grade_counts = defaultdict(int)
+
+    for row in rows:
+        grade = row[0]
+        count = row[1]
+        if not grade:
+            continue
+        normalized = str(grade).upper().strip()
+        grade_counts[normalized] += count
+
+    labels = sorted(grade_counts.keys())  # Or custom_sort(grade_counts.keys())
+    data = [grade_counts[g] for g in labels]
+
+    return labels, data
